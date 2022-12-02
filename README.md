@@ -2,5 +2,5 @@
 
 https://adventofcode.com/2022
 
-This year, I'm going to try to them all, and in Rust.
+This year, I'm going to try to do them all, and in Rust.
 

@@ -2,6 +2,7 @@ use std::fs;
 use std::iter::zip;
 
 use itertools::Itertools;
+use regex::Regex;
 
 use crate::helpers::*;
 
@@ -21,7 +22,7 @@ pub fn day5() -> Result<()> {
     let input = fs::read_to_string("input5.txt")?;
     assert_eq!(part1(EXAMPLE_1)?, "CMZ");
     println!("\tPart 1: {}", part1(input.as_str())?);
-    assert_eq!(part2(EXAMPLE_1)?, "");
+    assert_eq!(part2(EXAMPLE_1)?, "MCD");
     println!("\tPart 2: {}", part2(input.as_str())?);
     return Ok(());
 }
@@ -36,7 +37,7 @@ fn parse(input: &str) -> Vec<Vec<char>> {
             let c = chars.nth(1).unwrap();
             if c != ' ' {
                 state[i].push(c);
-                println!("{:?} - {:?}", i, state[i]);
+                // println!("{:?} - {:?}", i, state[i]);
 
             }
         }
@@ -44,7 +45,7 @@ fn parse(input: &str) -> Vec<Vec<char>> {
     return state;
 }
 
-fn print_state(state: Vec<Vec<char>> ) {
+fn print_state(state: &Vec<Vec<char>> ) {
     let maxlen = state.iter().map(Vec::len).max().unwrap();
     println!("State {}: {:?}", maxlen, state);
     for h in 1..=maxlen {
@@ -59,16 +60,49 @@ fn print_state(state: Vec<Vec<char>> ) {
     println!();
 }
 
-fn part1(input: &str) -> Result<&str> {
-
+fn part1(input: &str) -> Result<String> {
     let split = input.split("\n\n").collect::<Vec<&str>>();
     let mut state = parse(split[0]);
 
-    print_state(state);
+    let re = Regex::new(r"move (\d+) from (\d+) to (\d+)").unwrap();
 
-    return Ok("");
+    for line in split[1].lines() {
+        let captures = re.captures(line).unwrap();
+        let nr = captures.get(1).unwrap().as_str().parse::<usize>().unwrap();
+        let from = captures.get(2).unwrap().as_str().parse::<usize>().unwrap();
+        let to = captures.get(3).unwrap().as_str().parse::<usize>().unwrap();
+        // println!("{}: {} {} {}", line, nr, from, to);
+        for _ in 0..nr {
+            let c = state[from-1].pop().unwrap();
+            // println!("Moving {}", c);
+            state[to-1].push(c);
+        }
+        // print_state(&state);
+    }
+    print_state(&state);
+    let tops = state.iter().map(|x| x.last().unwrap()).join("");
+    return Ok(tops);
 }
 
-fn part2(input: &str) -> Result<&str> {
-    return Ok("");
+fn part2(input: &str) -> Result<String> {
+    let re = Regex::new(r"move (\d+) from (\d+) to (\d+)").unwrap();
+    let split = input.split("\n\n").collect::<Vec<&str>>();
+    let mut state = parse(split[0]);
+
+    for line in split[1].lines() {
+        let captures = re.captures(line).unwrap();
+        let nr = captures.get(1).unwrap().as_str().parse::<usize>().unwrap();
+        let from = captures.get(2).unwrap().as_str().parse::<usize>().unwrap();
+        let to = captures.get(3).unwrap().as_str().parse::<usize>().unwrap();
+        // println!("{}: {} {} {}", line, nr, from, to);
+
+        let (bottom, top) = state[from-1].split_at(state[from-1].len() - nr);
+        let mut top = Vec::from(top);
+        state[from-1] = Vec::from(bottom);
+        state[to-1].append(&mut top);
+        // print_state(&state);
+    }
+    print_state(&state);
+    let tops = state.iter().map(|x| x.last().unwrap()).join("");
+    return Ok(tops);
 }

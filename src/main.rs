@@ -6,7 +6,8 @@ mod helpers;
 // mod day5;
 // mod day6;
 // mod day7;
-mod day8;
+// mod day8;
+mod day9;
 
 use helpers::Result;
 
@@ -18,7 +19,8 @@ fn main() -> Result<()> {
     // day5::day5()?;
     // day6::day6()?;
     // day7::day7()?;
-    day8::day8()?;
+    // day8::day8()?;
+    day9::day9()?;
 
     return Ok(());
 }

@@ -46,8 +46,8 @@ pub fn day11() -> Result<()> {
 
 #[derive(Debug, Copy, Clone)]
 enum Operation {
-    AddConst(u128),
-    MultiplyConst(u128),
+    AddConst(u64),
+    MultiplyConst(u64),
     MultiplyOld(),
 }
 
@@ -70,12 +70,12 @@ impl FromStr for Operation {
 #[derive(Debug, Clone)]
 struct Monkey {
     nr: usize,
-    items: Vec<u128>,
+    items: Vec<u64>,
     operation: Operation,
-    test: u128,
+    test: u64,
     if_true: usize,
     if_false: usize,
-    count: u128,
+    count: u64,
 }
 
 impl Monkey {
@@ -91,15 +91,15 @@ impl Monkey {
     }
 }
 
-fn part1(input: &str) -> Result<u128> {
+fn part1(input: &str) -> Result<u64> {
     let mut monkeys = input.split("\n\n").map(Monkey::parse).collect_vec();
-    let mut mailbox: Vec<Vec<u128>> = vec![vec![]; monkeys.len()]; // Le sigh
+    let mut mailbox: Vec<Vec<u64>> = vec![vec![]; monkeys.len()]; // Le sigh
 
     for round in 0..20 {
-        println!("START Round {}", round);
+        // println!("START Round {}", round);
         for monkey in &mut monkeys {
             monkey.items.append(&mut mailbox[monkey.nr]);
-            println!("M{}: {:?}", monkey.nr, monkey.items);
+            // println!("M{}: {:?}", monkey.nr, monkey.items);
 
             for item in monkey.items.drain(0..) {
                 monkey.count += 1;
@@ -109,36 +109,39 @@ fn part1(input: &str) -> Result<u128> {
                     MultiplyOld() => item * item,
                 } / 3;
                 let to = if new_item % monkey.test == 0 {monkey.if_true} else {monkey.if_false};
-                println!("Monkey {} throws item {} to monkey {} with new value {}", monkey.nr, item, to, new_item);
+                // println!("Monkey {} throws item {} to monkey {} with new value {}", monkey.nr, item, to, new_item);
                 mailbox[to].push(new_item);
                 // monkeys[to].items.push(new_item);
             }
         }
 
-        println!("END Round {}", round);
+        // println!("END Round {}", round);
         for monkey in &mut monkeys {
             monkey.items.append(&mut mailbox[monkey.nr]);
-            println!("M{}: {:?}", monkey.nr, monkey.items);
+            // println!("M{}: {:?}", monkey.nr, monkey.items);
         }
     }
 
     let leaderboard = monkeys.iter().sorted_by_key(|x| x.count).rev().collect_vec();
-    for x in leaderboard.iter() {
-        println!("M{} did {} items", x.nr, x.count);
-    }
+    // for x in leaderboard.iter() {
+    //     println!("M{} did {} items", x.nr, x.count);
+    // }
 
     return Ok(leaderboard[0].count * leaderboard[1].count);
 }
 
-fn part2(input: &str) -> Result<u128> {
+fn part2(input: &str) -> Result<u64> {
     let mut monkeys = input.split("\n\n").map(Monkey::parse).collect_vec();
-    let mut mailbox: Vec<Vec<u128>> = vec![vec![]; monkeys.len()]; // Le sigh
+    let mut mailbox: Vec<Vec<u64>> = vec![vec![]; monkeys.len()]; // Le sigh
+
+    // We only need to keep track of the modulo of the fear factor, not the actual nr.
+    let modulo = monkeys.iter().map(|x| x.test).reduce(|acc, e| acc * e).unwrap();
 
     for round in 0..10000 {
-        println!("START Round {}", round);
+        // println!("START Round {}", round);
         for monkey in &mut monkeys {
             monkey.items.append(&mut mailbox[monkey.nr]);
-            println!("M{}: {:?}", monkey.nr, monkey.items);
+            // println!("M{}: {:?}", monkey.nr, monkey.items);
 
             for item in monkey.items.drain(0..) {
                 monkey.count += 1;
@@ -146,25 +149,25 @@ fn part2(input: &str) -> Result<u128> {
                     AddConst(x) => item + x,
                     MultiplyConst(x) => item * x,
                     MultiplyOld() => item * item,
-                };
+                } % modulo;
                 let to = if new_item % monkey.test == 0 {monkey.if_true} else {monkey.if_false};
-                println!("Monkey {} throws item {} to monkey {} with new value {}", monkey.nr, item, to, new_item);
+                // println!("Monkey {} throws item {} to monkey {} with new value {}", monkey.nr, item, to, new_item);
                 mailbox[to].push(new_item);
                 // monkeys[to].items.push(new_item);
             }
         }
 
-        println!("END Round {}", round);
+        // println!("END Round {}", round);
         for monkey in &mut monkeys {
             monkey.items.append(&mut mailbox[monkey.nr]);
-            println!("M{}: {:?}", monkey.nr, monkey.items);
+            // println!("M{}: {}", monkey.nr, monkey.count);
         }
     }
 
     let leaderboard = monkeys.iter().sorted_by_key(|x| x.count).rev().collect_vec();
-    for x in leaderboard.iter() {
-        println!("M{} did {} items", x.nr, x.count);
-    }
+    // for x in leaderboard.iter() {
+    //     println!("M{} did {} items", x.nr, x.count);
+    // }
 
     return Ok(leaderboard[0].count * leaderboard[1].count);
 }

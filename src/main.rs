@@ -14,7 +14,8 @@ mod helpers;
 // mod day10;
 // mod day11;
 // mod day12;
-mod day12_cheat;
+// mod day12_cheat;
+mod day13;
 
 use helpers::Result;
 
@@ -31,7 +32,8 @@ fn main() -> Result<()> {
     // day10::day10()?;
     // day11::day11()?;
     // day12::day12()?;
-    day12_cheat::day12()?;
+    // day12_cheat::day12()?;
+    day13::day13()?;
 
     return Ok(());
 }

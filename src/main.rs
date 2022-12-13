@@ -1,3 +1,4 @@
+#![feature(is_some_with)]
 extern crate core;
 
 mod helpers;
@@ -11,7 +12,9 @@ mod helpers;
 // mod day8;
 // mod day9;
 // mod day10;
-mod day11;
+// mod day11;
+// mod day12;
+mod day12_cheat;
 
 use helpers::Result;
 
@@ -26,7 +29,9 @@ fn main() -> Result<()> {
     // day8::day8()?;
     // day9::day9()?;
     // day10::day10()?;
-    day11::day11()?;
+    // day11::day11()?;
+    // day12::day12()?;
+    day12_cheat::day12()?;
 
     return Ok(());
 }

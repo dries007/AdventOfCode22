@@ -25,30 +25,22 @@ enum Tile {
     Rock,
 }
 
-fn parse(input: &str) -> (Vec<Vec<Tile>>, (usize, usize)) {
+fn parse(input: &str) -> Vec<Vec<Tile>> {
     let mut lines = vec![];
-    let mut min_x = 500;
-    let mut max_x = 500;
     let mut max_y = usize::MIN;
 
     for line in input.lines() {
         let line = line.split(" -> ").map(|pair|
             pair.split(',').map(|e| e.parse().unwrap()).collect_tuple::<(usize,usize)>().unwrap()
         ).collect_vec();
-        min_x = min_x.min(line.iter().map(|&(x, _y)| x).min().unwrap());
-        max_x = max_x.max(line.iter().map(|&(x, _y)| x).max().unwrap());
         max_y = max_y.max(line.iter().map(|&(_x, y)| y).max().unwrap());
         lines.push(line);
     }
-    // println!("Parsed input: {:?}", lines);
-    // println!("X: {}..={}, Y: 0..={}", min_x, max_x, max_y);
 
-    lines = lines.iter().map(|line| line.iter().map(|&(x, y)| (x - min_x, y)).collect_vec()).collect_vec();
-    // println!("Adjusted input: {:?}", lines);
-
-    let mut field = vec![vec![Air; 1 + max_x - min_x]; 1 + max_y];
+    // #define infinity 1000
+    let mut field = vec![vec![Air; 1000]; 3 + max_y];
     println!("H={} by W={}", field.len(), field[0].len());
-    print_field(&field, ((500 - min_x) as usize, 0));
+    print_field(&field);
 
     for line in lines {
         let mut line = line.iter();
@@ -70,13 +62,13 @@ fn parse(input: &str) -> (Vec<Vec<Tile>>, (usize, usize)) {
         }
     }
 
-    return (field, ((500 - min_x) as usize, 0));
+    return field;
 }
 
-fn print_field(field: &Vec<Vec<Tile>>, source: (usize, usize)) {
+fn print_field(field: &Vec<Vec<Tile>>) {
     for (y, line) in field.iter().enumerate() {
         let line = line.iter().enumerate().map(|(x, tile)| {
-            if source == (x, y) {
+            if (500, 0) == (x, y) {
                 return '+'
             }
             match tile {
@@ -90,17 +82,17 @@ fn print_field(field: &Vec<Vec<Tile>>, source: (usize, usize)) {
 }
 
 fn part1(input: &str) -> Result<i32> {
-    let (mut field, source) = parse(input);
+    let mut field = parse(input);
     let mut score = 0;
-    print_field(&field, source);
+    print_field(&field);
     let void_y = field.len();
     let void_x = field[0].len();
     loop {
-        let (mut x, mut y) = source;
+        let (mut x, mut y) = (500, 0);
         loop {
             y += 1;
             if y >= void_y {
-                print_field(&field, source);
+                print_field(&field);
                 println!("Void {}", score);
                 return Ok(score);
             }
@@ -108,7 +100,7 @@ fn part1(input: &str) -> Result<i32> {
                 continue
             }
             if x == 0 {
-                print_field(&field, source);
+                print_field(&field);
                 println!("Void {}", score);
                 return Ok(score);
             }
@@ -117,7 +109,7 @@ fn part1(input: &str) -> Result<i32> {
                 continue
             }
             if x >= void_x {
-                print_field(&field, source);
+                print_field(&field);
                 println!("Void {}", score);
                 return Ok(score);
             }
@@ -134,5 +126,56 @@ fn part1(input: &str) -> Result<i32> {
 }
 
 fn part2(input: &str) -> Result<i32> {
-    return Ok(0);
+    let mut field = parse(input);
+
+    let floor = field.len()-1;
+    for x in 0..field[0].len() {
+        field[floor][x] = Rock;
+    }
+
+    let mut score = 0;
+    print_field(&field);
+    let void_y = field.len();
+    let void_x = field[0].len();
+    loop {
+        let (mut x, mut y) = (500, 0);
+        loop {
+            y += 1;
+            if y >= void_y {
+                print_field(&field);
+                println!("Void {}", score);
+                return Ok(score);
+            }
+            if field[y][x] == Air {
+                continue
+            }
+            if x == 0 {
+                print_field(&field);
+                println!("Void {}", score);
+                return Ok(score);
+            }
+            if field[y][x-1] == Air {
+                x -= 1;
+                continue
+            }
+            if x >= void_x {
+                print_field(&field);
+                println!("Void {}", score);
+                return Ok(score);
+            }
+            if field[y][x+1] == Air {
+                x += 1;
+                continue
+            }
+            score += 1;
+            if (x, y-1) == (500, 0) {
+                print_field(&field);
+                println!("Full {}", score);
+                return Ok(score);
+            }
+            field[y-1][x] = Sand;
+            // print_field(&field, source);
+            break
+        }
+    }
 }
